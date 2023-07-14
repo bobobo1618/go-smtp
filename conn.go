@@ -366,16 +366,13 @@ func (c *Conn) handleMail(arg string) {
 					c.writeResponse(500, EnhancedCode{5, 5, 4}, "Malformed AUTH parameter value")
 					return
 				}
-				if !strings.HasPrefix(value, "<") {
-					c.writeResponse(500, EnhancedCode{5, 5, 4}, "Missing opening angle bracket")
+				if value == "" {
+					c.writeResponse(500, EnhancedCode{5, 5, 4}, "AUTH parameter was empty")
 					return
 				}
-				if !strings.HasSuffix(value, ">") {
-					c.writeResponse(500, EnhancedCode{5, 5, 4}, "Missing closing angle bracket")
-					return
-				}
-				decodedMbox := value[1 : len(value)-1]
+				decodedMbox := strings.Trim(value, "<>")
 				opts.Auth = &decodedMbox
+				return
 			default:
 				c.writeResponse(500, EnhancedCode{5, 5, 4}, "Unknown MAIL FROM argument")
 				return
